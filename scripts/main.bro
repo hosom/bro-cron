@@ -19,7 +19,7 @@ export {
 		## the command that was executed
 		command:	string &log;
 		## the result of executing the command
-		result:		vector of string &log;
+		result:		vector of string &log &optional;
 		## the result code of the command
 		exit_code:  count &log;
 	};
@@ -57,9 +57,14 @@ event cron_done(job: CronJob, result: Exec::Result)
 
 event cron_done(job: CronJob, result: Exec::Result)
 	{
+
+    local stdout = vector("");
+    if ( result?$stdout )
+        stdout = result$stdout;
+    
 	local info = JobInfo($ts=network_time(), 
 		$command=job$command$cmd, 
-		$result=result$stdout, 
+		$result=stdout, 
 		$exit_code=result$exit_code);
 	Log::write(cron::JOBS_LOG, info);
 	}
